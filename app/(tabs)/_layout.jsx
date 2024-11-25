@@ -1,10 +1,42 @@
 import { View, Text } from 'react-native'
-import React from 'react'
+import React, { useContext } from 'react'
 import { Tabs } from 'expo-router'
 import Ionicons from '@expo/vector-icons/Ionicons'
 import Colors from '../../constants/Colors'
+import { useUser } from '@clerk/clerk-expo'
+import GlobalApi from '../../services/GlobalApi'
+import { UserDetailContext } from '../../context/UserDetailContext'
 
 export default function TabLayout() {
+
+  const {user} = useUser()
+  const {userDetail, setUserDetail}=useContext(UserDetailContext)
+
+  const VerifyUser = async() => {
+    const result = await GlobalApi.GetUserInfo(user?.primaryEmailAddress)
+
+    // if user data is already exist..
+    if (!result.data.data.length != 0) {
+      setUserDetail(result.data.data)
+      return;
+    }
+
+    //  append the created on to the db
+    try {
+      const data = {
+        userEmail: user?.primaryEmailAddress?.emailAddress,
+        userName: user?.fullName
+      }
+      const result = await GlobalApi.CreateNewUser(data);
+      setUserDetail(result.data.data[0])
+
+    } catch(e) {
+
+  }
+    return;
+  }
+
+
   return (
     <Tabs screenOptions={{
       headerShown: false,
