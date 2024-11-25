@@ -52,6 +52,7 @@ export default function RootLayout() {
           <Stack.Screen
             name='login/index'
           />
+          <Stack.Screen name="FormInput" />
         </Stack>
         </UserDetailContext.Provider>
       </ClerkLoaded>

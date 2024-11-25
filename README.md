@@ -11,8 +11,14 @@ react native, expo
 ## Save User to Strapi
 1:06:56
 
-## Home Screen
+## 7.  Home Screen
 1:25:41
 
+## 8. Prompt Input Screen
+2:12:38
+
+## 9. Create API to Generate AI Image
+2:44:04
+
 ## Current
-29:15
+2:37:23

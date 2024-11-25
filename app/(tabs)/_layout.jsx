@@ -1,5 +1,5 @@
 import { View, Text } from 'react-native'
-import React, { useContext } from 'react'
+import React, { useContext, useEffect } from 'react'
 import { Tabs } from 'expo-router'
 import Ionicons from '@expo/vector-icons/Ionicons'
 import Colors from '../../constants/Colors'
@@ -12,12 +12,17 @@ export default function TabLayout() {
   const {user} = useUser()
   const {userDetail, setUserDetail}=useContext(UserDetailContext)
 
+  useEffect(()=>{
+    user&&VerifyUser()
+  }, [user])
+
   const VerifyUser = async() => {
     const result = await GlobalApi.GetUserInfo(user?.primaryEmailAddress)
+    console.log(result.data.data)
 
     // if user data is already exist..
-    if (!result.data.data.length != 0) {
-      setUserDetail(result.data.data)
+    if (result.data.data.length != 0) {
+      setUserDetail(result.data.data[0])
       return;
     }
 
@@ -28,6 +33,7 @@ export default function TabLayout() {
         userName: user?.fullName
       }
       const result = await GlobalApi.CreateNewUser(data);
+      console.log(result?.data.data)
       setUserDetail(result.data.data[0])
 
     } catch(e) {
