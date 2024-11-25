@@ -8,22 +8,38 @@ export default function Header() {
   const {user} = useUser()
   const {userDetail, setUserDetail}=useContext(UserDetailContext)
   return (
-    <View>
+    <View style={{
+      display:'flex',
+      flexDirection:'row',
+      justifyContent:'space-between',
+      alignItems:'center'
+    }}>
       <Text style={{
         fontSize:30,
         color:Colors.PRIMARY,
         fontWeight:'bold'
       }}>Cutout.pro</Text>
 
-      <View>
-        
-        <View>
+      <View style={{
+        display:'flex',
+        flexDirection:'row',
+        gap:10
+      }}>
+        <View style={{
+          display:'flex',
+          flexDirection:'row',
+          alignItems:'center',
+          gap:5,
+          borderWidth:0.5,
+          borderRadius:99,
+          paddingHorizontal:10
+        }}>
           <Image source={require('../../assets/images/coin.png')}
             style={{
-              width:30,
-              height:30
+              width:25,
+              height:25
             }}/>
-          {/* <Text>{userDetail?.</Text> */}
+          <Text>{userDetail?.credits}</Text>
         </View>
         <Image source={{uri:user?.imageUrl}} style={{
           width:40,

@@ -1,6 +1,7 @@
 import { View, Text } from 'react-native'
 import React from 'react'
 import Header from '../../components/Home/Header'
+import Banner from '../../components/Home/Banner'
 
 export default function Home() {
   return (
@@ -12,6 +13,7 @@ export default function Home() {
       <Header />
 
       {/* Banner */}
+      <Banner/>
     </View>
   )
 }
