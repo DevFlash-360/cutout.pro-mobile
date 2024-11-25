@@ -17,5 +17,8 @@ react native, expo
 ## 8. Prompt Input Screen
 2:12:38
 
+## 9. Create API to Generate AI Image
+2:44:04
+
 ## Current
-2:09:55
+2:37:23
