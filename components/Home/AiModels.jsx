@@ -1,6 +1,7 @@
 import { View, Text, FlatList, Image } from 'react-native'
 import React, { useEffect, useState } from 'react'
 import GlobalApi from '../../services/GlobalApi'
+import Colors from '../../constants/Colors'
 
 export default function AiModels({ type }) {
 
@@ -29,6 +30,7 @@ export default function AiModels({ type }) {
         data={aiModelList}
         horizontal={true}
         showsHorizontalScrollIndicator={false}
+        nestedScrollEnabled={true}
         renderItem={({ item, index }) => (
           <View style={{
             marginRight:15
@@ -40,6 +42,15 @@ export default function AiModels({ type }) {
                 borderRadius: 15
               }}
             />
+            <Text style={{
+              position:'absolute',
+              bottom:10,
+              color:Colors.WHITE,
+              width:'100%',
+              textAlign:'center',
+              fontWeight:'medium',
+              fontSize: 15
+            }}>{item.name}</Text>
           </View>
         )}
       />
