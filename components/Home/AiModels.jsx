@@ -15,7 +15,7 @@ export default function AiModels({ type }) {
 
   const GetAiModels = async () => {
     const result = await GlobalApi.GetAiModels(type)
-    console.log(result?.data.data)
+    // console.log(result?.data.data)
     setAiModelList(result.data.data)
   }
 

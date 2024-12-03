@@ -15,7 +15,7 @@ export default function AiFeaturedModel() {
 
   const GetAiModelFeaturedList = async() => {
     const result = await GlobalApi.GetFeaturedCategoryList()
-    console.log(result.data.data)
+    // console.log(result.data.data)
     setAiModelList(result.data.data)
   }
 

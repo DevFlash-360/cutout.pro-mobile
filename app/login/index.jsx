@@ -42,7 +42,7 @@ export default function LoginScreen() {
           fontSize: 30,
           fontWeight:'bold',
           textAlign: 'center'
-        }}>Welcome to ImagineAI.</Text>
+        }}>Welcome to PhotoSaveAI.</Text>
 
         <Text style={{
           color:Colors.GRAY,
