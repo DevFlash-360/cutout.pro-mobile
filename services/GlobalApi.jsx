@@ -1,6 +1,6 @@
 import axios from "axios"
 const axiosClient=axios.create({
-    baseURL:'http://192.168.130.186:1337/api',
+    baseURL:'http://192.168.130.196:1337/api',
     // baseURL:'https://eloquent-treasure-0094d8e836.strapiapp.com/api',
     headers:{
         'Authorization':'Bearer '+process.env.EXPO_PUBLIC_STRAPI_API_KEY
@@ -18,6 +18,8 @@ const GetAiModels=(type)=>axiosClient.get('/ai-models?filters['+type+'][$eq]=tru
 
 // const AIGenerateImage=(data)=>axios.post(process.env.EXPO_PUBLIC_AIMODEL_FIREBASE_URL,data);
 
+const AIGenerateImage = (data)=>axios.get('http://192.168.130.196:8081/aimodel')
+
 const UpdateUserCredits=(documentId,data)=>axiosClient.put('/user-lists/'+documentId,{data:data})
 
 
@@ -32,7 +34,7 @@ export default{
     CreateNewUser,
     GetFeaturedCategoryList,
     GetAiModels,
-    // AIGenerateImage,
+    AIGenerateImage,
     UpdateUserCredits,
     // AddAiImageRecord,
     // GetAllAiImages,

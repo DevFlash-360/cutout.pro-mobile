@@ -16,12 +16,10 @@ export default function ImageUploadComponent({uploadedImage}) {
       quality: 1,
     });
 
-    console.log(result);
-
     if (!result.canceled) {
       uploadedImage(result.assets[0].uri);
       setImage(result.assets[0].uri)
-      // console.log(result.assets[0].uri)
+      console.log('picked image uri: ', result.assets[0].uri)
     }
   };
 
