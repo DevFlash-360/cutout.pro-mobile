@@ -1,11 +1,13 @@
 import { View, Text, TouchableOpacity, Image, ActivityIndicator, FlatList } from 'react-native';
-import React, { useEffect, useState } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import { useLocalSearchParams, useNavigation } from 'expo-router';
 import Colors from '../constants/Colors';
 import TextInput_ from '../components/FormInput/TextInput_';
 import ImageUploadComponent from '../components/FormInput/ImageUploadComponent';
 import axios from "axios";
 import * as FileSystem from 'expo-file-system';
+import {UserDetailContext} from './../context/UserDetailContext';
+import GlobalApi from '../services/GlobalApi';
 
 export default function FormInput() {
   const params = useLocalSearchParams();
@@ -15,6 +17,8 @@ export default function FormInput() {
   const [userImage, setUserImage] = useState();
   const [generatedImageUrl, setGeneratedImageUrl] = useState(null); // State for generated image URL
   const [loading, setLoading] = useState(false); // Loading state
+
+  const {userDetail, setUserDetail}=useContext(UserDetailContext);
 
   useEffect(() => {
     console.log('Current aiModelName: ', params.aiModelName);
@@ -34,45 +38,65 @@ export default function FormInput() {
     setLoading(true); // Start loading
 
     try {
-      // Get file info
-      const fileInfo = await FileSystem.getInfoAsync(userImage);
+      // // Get file info
+      // const fileInfo = await FileSystem.getInfoAsync(userImage);
   
-      if (!fileInfo.exists) {
-        Alert.alert('Error', 'File does not exist');
-        return;
+      // if (!fileInfo.exists) {
+      //   Alert.alert('Error', 'File does not exist');
+      //   return;
+      // }
+
+      // // const base64 = await FileSystem.readAsStringAsync(uri, { encoding: FileSystem.EncodingType.Base64 });
+
+      // const file = {
+      //   uri: userImage,
+      //   name: 'image.jpg',
+      //   type: 'image/jpeg',
+      // };
+
+      // const formData = new FormData();
+      // formData.append('file', file);
+
+      // const response = await axios.post(
+      //   'https://www.cutout.pro/api/v1/matting2?mattingType=6',  // Replace with actual API endpoint
+      //   formData,
+      //   {
+      //     headers: {
+      //       'APIKEY': process.env.EXPO_PUBLIC_CUTOUT_API_KEY,
+      //       'Content-Type': 'multipart/form-data',
+      //     },
+      //     // responseType: 'blob',  // Expect binary data (image)
+      //   }
+      // );
+      // console.log('response from cutout: ', response.data.data.imageUrl)
+      // setGeneratedImageUrl(response.data.data.imageUrl);
+
+        
+      // To update user Credit
+      const updatedResult = await GlobalApi.UpdateUserCredits(userDetail?.documentId,
+        {credits:Number(userDetail?.credits)-1})
+      console.log(updatedResult.data)
+      setUserDetail(updatedResult?.data.data);
+
+      // save generated image url
+
+      const SaveImageData={
+        imageUrl:response.data.data.imageUrl,
+        userEmail: userDetail?.userEmail
       }
+      const SaveImageResult = await GlobalApi.AddAiImageRecord(SaveImageData)
+      console.log(SaveImageResult.data.data)
 
-      // const base64 = await FileSystem.readAsStringAsync(uri, { encoding: FileSystem.EncodingType.Base64 });
-
-      const file = {
-        uri: userImage,
-        name: 'image.jpg',
-        type: 'image/jpeg',
-      };
-
-      const formData = new FormData();
-      formData.append('file', file);
-
-      const response = await axios.post(
-        'https://www.cutout.pro/api/v1/matting2?mattingType=6',  // Replace with actual API endpoint
-        formData,
-        {
-          headers: {
-            'APIKEY': process.env.EXPO_PUBLIC_CUTOUT_API_KEY,
-            'Content-Type': 'multipart/form-data',
-          },
-          // responseType: 'blob',  // Expect binary data (image)
-        }
-      );
-      console.log('response from cutout: ', response.data.data.imageUrl)
-      setGeneratedImageUrl(response.data.data.imageUrl);
+      setLoading(false)
     } catch (error) {
       console.log(error)
+      setLoading(false)
     }
 
     // const response = await axios.post('http://192.168.130.196:8081/aimodel', {
     //   formData
     // });
+
   };
 
   return (
@@ -104,6 +128,7 @@ export default function FormInput() {
 
           <TouchableOpacity 
             onPress={OnGenerate}
+            disabled={loading}
             style={{
               padding: 12,
               backgroundColor: Colors.PRIMARY,
@@ -111,15 +136,14 @@ export default function FormInput() {
               marginVertical: 15,
               width: '100%',
             }}>
-            <Text style={{
-              textAlign: 'center',
-              color: Colors.WHITE,
-              fontSize: 20
-            }}>Generate</Text>
+            {loading ? <ActivityIndicator size={'large'} color={'#fff'} /> :
+              <Text style={{
+                textAlign: 'center',
+                color: Colors.WHITE,
+                fontSize: 20
+              }}>Generate</Text>
+            }
           </TouchableOpacity>
-
-          {/* Show loading indicator while fetching */}
-          {loading && <ActivityIndicator size="large" color={Colors.PRIMARY} />}
 
           {/* Render the generated AI image if available */}
           {generatedImageUrl && (
