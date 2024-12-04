@@ -23,7 +23,7 @@ const AIGenerateImage = (data)=>axios.get('http://192.168.130.196:8081/aimodel')
 const UpdateUserCredits=(documentId,data)=>axiosClient.put('/user-lists/'+documentId,{data:data})
 
 
-// const AddAiImageRecord=(data)=>axiosClient.post('/ai-generated-images',{data:data});
+const AddAiImageRecord=(data)=>axiosClient.post('/ai-generated-images',{data:data});
 
 // const GetAllAiImages=(pageSize)=>axiosClient.get('/ai-generated-images?pagination[start]='+(pageSize-5)+'&pagination[limit]='+pageSize+'&pagination[withCount]=true&sort[0]=id:desc')
 
@@ -36,7 +36,7 @@ export default{
     GetAiModels,
     AIGenerateImage,
     UpdateUserCredits,
-    // AddAiImageRecord,
+    AddAiImageRecord,
     // GetAllAiImages,
     // GetUsersAiImages
 }
