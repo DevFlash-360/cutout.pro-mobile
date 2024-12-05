@@ -1,6 +1,6 @@
-import { View, Text, TouchableOpacity, Image, ActivityIndicator, FlatList } from 'react-native';
+import { View, Text, TouchableOpacity, Image, ActivityIndicator, FlatList, ToastAndroid } from 'react-native';
 import React, { useContext, useEffect, useState } from 'react';
-import { useLocalSearchParams, useNavigation } from 'expo-router';
+import { useLocalSearchParams, useNavigation, useRouter } from 'expo-router';
 import Colors from '../constants/Colors';
 import TextInput_ from '../components/FormInput/TextInput_';
 import ImageUploadComponent from '../components/FormInput/ImageUploadComponent';
@@ -8,6 +8,8 @@ import axios from "axios";
 import * as FileSystem from 'expo-file-system';
 import {UserDetailContext} from './../context/UserDetailContext';
 import GlobalApi from '../services/GlobalApi';
+import {Cloudinary} from '@cloudinary/url-gen';
+import { upload } from 'cloudinary-react-native';
 
 export default function FormInput() {
   const params = useLocalSearchParams();
@@ -15,8 +17,9 @@ export default function FormInput() {
   const [aiModel, setAiModel] = useState();
   const [userInput, setUserInput] = useState();
   const [userImage, setUserImage] = useState();
-  const [generatedImageUrl, setGeneratedImageUrl] = useState(null); // State for generated image URL
+  // const [generatedImageUrl, setGeneratedImageUrl] = useState(null); // State for generated image URL
   const [loading, setLoading] = useState(false); // Loading state
+  const router=useRouter();
 
   const {userDetail, setUserDetail}=useContext(UserDetailContext);
 
@@ -30,6 +33,45 @@ export default function FormInput() {
   }, []);
 
   const OnGenerate = async () => {
+
+
+    // if(userDetail.credits <= 0) {
+    //   ToastAndroid.show('You dont have enough credits', ToastAndroid.LONG);
+    //   return;
+    // }
+
+    console.log('AI model name: ', aiModel?.aiModelName)
+    console.log('User Image Upload: ', aiModel?.userImageUpload)
+    // console.log(aiModel)
+
+    if(aiModel?.userImageUpload=='false' || aiModel?.userImageUpload == false){
+      TextToImage()
+    }
+    else {
+      ImageToAiImage()
+    }
+    
+  };
+
+  const TextToImage = () => {
+    if (!userInput) {
+      alert("Please select an image first.");
+      return;
+    }
+    
+    router.push({
+      pathname:'viewAiImage',
+      params:{
+        imageUrl:'fake url',
+        prompt:userInput
+      }
+    })
+
+  }
+
+  const ImageToAiImage = async() =>{
+
+    console.log('ImageToAiImage')
     if (!userImage) {
       alert("Please select an image first.");
       return;
@@ -37,55 +79,88 @@ export default function FormInput() {
 
     setLoading(true); // Start loading
 
-    try {
-      // // Get file info
-      // const fileInfo = await FileSystem.getInfoAsync(userImage);
+    // Upload picked image to cloudinary.
+
+    const cld = new Cloudinary({
+      cloud: {
+        cloudName: process.env.EXPO_PUBLIC_CLOUDINARY_NAME
+      },
+      url: {
+        secure: true
+      }
+    });
   
-      // if (!fileInfo.exists) {
-      //   Alert.alert('Error', 'File does not exist');
-      //   return;
-      // }
+    const options = {
+      upload_preset: process.env.EXPO_PUBLIC_CLOUDINARY_PRESET,
+      unsigned: true,
+    }
+  
+      await upload(cld, {file: userImage , options: options, callback: (error, response) => {
+          //.. handle response
+          console.log('picked image uploaded to cloudinary: ', response?.url)
+      }})
 
-      // // const base64 = await FileSystem.readAsStringAsync(uri, { encoding: FileSystem.EncodingType.Base64 });
 
-      // const file = {
-      //   uri: userImage,
-      //   name: 'image.jpg',
-      //   type: 'image/jpeg',
-      // };
+    // Generate AI Image.
 
-      // const formData = new FormData();
-      // formData.append('file', file);
+    try {
+      // Get file info
+      const fileInfo = await FileSystem.getInfoAsync(userImage);
+  
+      if (!fileInfo.exists) {
+        Alert.alert('Error', 'File does not exist');
+        return;
+      }
 
-      // const response = await axios.post(
-      //   'https://www.cutout.pro/api/v1/matting2?mattingType=6',  // Replace with actual API endpoint
-      //   formData,
-      //   {
-      //     headers: {
-      //       'APIKEY': process.env.EXPO_PUBLIC_CUTOUT_API_KEY,
-      //       'Content-Type': 'multipart/form-data',
-      //     },
-      //     // responseType: 'blob',  // Expect binary data (image)
-      //   }
-      // );
-      // console.log('response from cutout: ', response.data.data.imageUrl)
+      // const base64 = await FileSystem.readAsStringAsync(uri, { encoding: FileSystem.EncodingType.Base64 });
+
+      const file = {
+        uri: userImage,
+        name: 'image.jpg',
+        type: 'image/jpeg',
+      };
+
+      const formData = new FormData();
+      formData.append('file', file);
+
+      const response = await axios.post(
+        'https://www.cutout.pro/api/v1/matting2?mattingType=6',  // Replace with actual API endpoint
+        formData,
+        {
+          headers: {
+            'APIKEY': process.env.EXPO_PUBLIC_CUTOUT_API_KEY,
+            'Content-Type': 'multipart/form-data',
+          },
+          // responseType: 'blob',  // Expect binary data (image)
+        }
+      );
+      console.log('response from cutout: ', response.data.data.imageUrl)
+      const AIImage =  response.data.data.imageUrl;
       // setGeneratedImageUrl(response.data.data.imageUrl);
 
         
-      // To update user Credit
-      const updatedResult = await GlobalApi.UpdateUserCredits(userDetail?.documentId,
-        {credits:Number(userDetail?.credits)-1})
-      console.log(updatedResult.data)
-      setUserDetail(updatedResult?.data.data);
+      // // To update user Credit
+      // const updatedResult = await GlobalApi.UpdateUserCredits(userDetail?.documentId,
+      //   {credits:Number(userDetail?.credits)-1})
+      // console.log(updatedResult.data)
+      // setUserDetail(updatedResult?.data.data);
 
-      // save generated image url
+      // // save generated image url
 
-      const SaveImageData={
-        imageUrl:response.data.data.imageUrl,
-        userEmail: userDetail?.userEmail
-      }
-      const SaveImageResult = await GlobalApi.AddAiImageRecord(SaveImageData)
-      console.log(SaveImageResult.data.data)
+      // const SaveImageData={
+      //   imageUrl:response.data.data.imageUrl,
+      //   userEmail: userDetail?.userEmail
+      // }
+      // const SaveImageResult = await GlobalApi.AddAiImageRecord(SaveImageData)
+      // console.log(SaveImageResult.data.data)
+
+      router.push({
+        pathname:'viewAiImage',
+        params:{
+          imageUrl:AIImage,
+          prompt:aiModel?.aiModelName
+        }
+      })
 
       setLoading(false)
     } catch (error) {
@@ -97,7 +172,7 @@ export default function FormInput() {
     //   formData
     // });
 
-  };
+  }
 
   return (
     <FlatList
@@ -146,7 +221,7 @@ export default function FormInput() {
           </TouchableOpacity>
 
           {/* Render the generated AI image if available */}
-          {generatedImageUrl && (
+          {/* {generatedImageUrl && (
             <View style={{ alignItems: 'center', marginTop: 20 }}>
               <Text style={{ fontWeight: 'bold', marginBottom: 10 }}>Generated Image:</Text>
               <Image 
@@ -155,7 +230,7 @@ export default function FormInput() {
                 resizeMode="contain" 
               />
             </View>
-          )}
+          )} */}
         </View>
       )}
     />
