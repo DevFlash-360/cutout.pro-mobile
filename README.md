@@ -39,6 +39,13 @@ react native, expo
 ## 14. Display User Created Images
 3:54:40
 
+## 15. Deploy Strapi CMS
+4:10:41
+
+## 16. Export APK
+4:17:59
+
+
 ## Current
 2:37:23
 
