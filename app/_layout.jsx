@@ -1,7 +1,7 @@
 import { Stack } from "expo-router";
 import * as SecureStore from 'expo-secure-store'
 import { ClerkProvider, ClerkLoaded } from '@clerk/clerk-expo'
-import { UserDetailContext } from './../context/UserDetailContext'
+import { UserDetailContext } from '../context/UserDetailContext'
 import { useState } from "react";
 
 export default function RootLayout() {
@@ -9,7 +9,7 @@ export default function RootLayout() {
   const [userDetail, setUserDetail] = useState()
     
   const tokenCache = {
-    async getToken(key: string) {
+    async getToken(key) {
       try {
         const item = await SecureStore.getItemAsync(key)
         if (item) {
@@ -24,7 +24,7 @@ export default function RootLayout() {
         return null
       }
     },
-    async saveToken(key: string, value: string) {
+    async saveToken(key, value) {
       try {
         return SecureStore.setItemAsync(key, value)
       } catch (err) {
@@ -42,7 +42,7 @@ export default function RootLayout() {
   }
 
   return (
-    <ClerkProvider publishableKey={publishableKey}>
+    <ClerkProvider tokenCache={tokenCache} publishableKey={publishableKey}>
       <ClerkLoaded>
         <UserDetailContext.Provider value={{userDetail, setUserDetail}}>
         <Stack screenOptions={{

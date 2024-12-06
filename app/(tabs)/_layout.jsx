@@ -6,6 +6,7 @@ import Colors from '../../constants/Colors'
 import { useUser } from '@clerk/clerk-expo'
 import GlobalApi from '../../services/GlobalApi'
 import { UserDetailContext } from '../../context/UserDetailContext'
+import * as Updates from 'expo-updates';
 
 export default function TabLayout() {
 
@@ -14,15 +15,16 @@ export default function TabLayout() {
 
   useEffect(()=>{
     user&&VerifyUser()
+    !user&&Updates.reloadAsync()
   }, [user])
 
   const VerifyUser = async() => {
     const result = await GlobalApi.GetUserInfo(user?.primaryEmailAddress)
-    console.log(result.data.data)
 
     // if user data is already exist..
     if (result.data.data.length != 0) {
       setUserDetail(result.data.data[0])
+      console.log('already exist user: ', result.data.data[0].userEmail)
       return;
     }
 
@@ -33,7 +35,7 @@ export default function TabLayout() {
         userName: user?.fullName
       }
       const result = await GlobalApi.CreateNewUser(data);
-      console.log(result?.data.data)
+      console.log('new user: ', result?.data.data[0].userEmail)
       setUserDetail(result.data.data[0])
 
     } catch(e) {

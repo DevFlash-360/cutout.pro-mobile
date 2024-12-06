@@ -17,7 +17,6 @@ export default function FormInput() {
   const [aiModel, setAiModel] = useState();
   const [userInput, setUserInput] = useState();
   const [userImage, setUserImage] = useState();
-  // const [generatedImageUrl, setGeneratedImageUrl] = useState(null); // State for generated image URL
   const [loading, setLoading] = useState(false); // Loading state
   const router=useRouter();
 
@@ -34,15 +33,13 @@ export default function FormInput() {
 
   const OnGenerate = async () => {
 
-
-    // if(userDetail.credits <= 0) {
-    //   ToastAndroid.show('You dont have enough credits', ToastAndroid.LONG);
-    //   return;
-    // }
+    if(userDetail?.credits <= 0) {
+      ToastAndroid.show('You dont have enough credits', ToastAndroid.LONG);
+      return;
+    }
 
     console.log('AI model name: ', aiModel?.aiModelName)
     console.log('User Image Upload: ', aiModel?.userImageUpload)
-    // console.log(aiModel)
 
     if(aiModel?.userImageUpload=='false' || aiModel?.userImageUpload == false){
       TextToImage()
@@ -134,25 +131,24 @@ export default function FormInput() {
           // responseType: 'blob',  // Expect binary data (image)
         }
       );
-      console.log('response from cutout: ', response.data.data.imageUrl)
       const AIImage =  response.data.data.imageUrl;
-      // setGeneratedImageUrl(response.data.data.imageUrl);
+      console.log('AI generated image url: ', AIImage)
 
         
-      // // To update user Credit
-      // const updatedResult = await GlobalApi.UpdateUserCredits(userDetail?.documentId,
-      //   {credits:Number(userDetail?.credits)-1})
-      // console.log(updatedResult.data)
-      // setUserDetail(updatedResult?.data.data);
+      // To update user Credit
+      const updatedResult = await GlobalApi.UpdateUserCredits(userDetail?.documentId,
+        {credits:Number(userDetail?.credits)-1})
+      console.log('credit update result ', updatedResult.data.data.userEmail, updatedResult.data.data.credits)
+      setUserDetail(updatedResult?.data.data);
 
       // // save generated image url
 
-      // const SaveImageData={
-      //   imageUrl:response.data.data.imageUrl,
-      //   userEmail: userDetail?.userEmail
-      // }
-      // const SaveImageResult = await GlobalApi.AddAiImageRecord(SaveImageData)
-      // console.log(SaveImageResult.data.data)
+      const SaveImageData={
+        imageUrl:AIImage,
+        userEmail: userDetail?.userEmail
+      }
+      const SaveImageResult = await GlobalApi.AddAiImageRecord(SaveImageData)
+      console.log(SaveImageResult.data.data.userEmail, 'added a new image record')
 
       router.push({
         pathname:'viewAiImage',
@@ -219,18 +215,6 @@ export default function FormInput() {
               }}>Generate</Text>
             }
           </TouchableOpacity>
-
-          {/* Render the generated AI image if available */}
-          {/* {generatedImageUrl && (
-            <View style={{ alignItems: 'center', marginTop: 20 }}>
-              <Text style={{ fontWeight: 'bold', marginBottom: 10 }}>Generated Image:</Text>
-              <Image 
-                source={{ uri: generatedImageUrl }} 
-                style={{ width: '100%', height: 300, borderRadius: 10 }} 
-                resizeMode="contain" 
-              />
-            </View>
-          )} */}
         </View>
       )}
     />
