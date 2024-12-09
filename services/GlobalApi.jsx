@@ -27,7 +27,7 @@ const AddAiImageRecord=(data)=>axiosClient.post('/ai-generated-images',{data:dat
 
 const GetAllAiImages=(pageSize, count)=>axiosClient.get('/ai-generated-images?pagination[start]='+(pageSize-count)+'&pagination[limit]='+count+'&pagination[withCount]=true&sort[0]=id:desc')
 
-// const GetUsersAiImages=(pageSize,email)=>axiosClient.get('/ai-generated-images?filters[userEmail][$eq]='+email+'& pagination[start]='+(pageSize-5)+'&pagination[limit]='+pageSize+'&pagination[withCount]=true&sort[0]=id:desc')
+const GetUsersAiImages=(pageSize, count,email)=>axiosClient.get('/ai-generated-images?filters[userEmail][$eq]='+email+'& pagination[start]='+(pageSize-count)+'&pagination[limit]='+count+'&pagination[withCount]=true&sort[0]=id:desc')
 
 export default{
     GetUserInfo,
@@ -38,5 +38,5 @@ export default{
     UpdateUserCredits,
     AddAiImageRecord,
     GetAllAiImages,
-    // GetUsersAiImages
+    GetUsersAiImages
 }
