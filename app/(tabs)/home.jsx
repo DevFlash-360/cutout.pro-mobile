@@ -4,6 +4,7 @@ import Header from '../../components/Home/Header'
 import Banner from '../../components/Home/Banner'
 import AiFeaturedModel from '../../components/Home/AiFeaturedModel'
 import AiModels from '../../components/Home/AiModels'
+import AllUsersCreation from '../../components/Home/AllUsersCreation'
 
 export default function Home() {
   return (
@@ -29,6 +30,9 @@ export default function Home() {
           {/* Ai Models */}
           <AiModels type={'avatar'} />
           <AiModels type={'style'} />
+
+          {/* users creation */}
+          <AllUsersCreation />
 
           <View style={{ height: 100 }}>
 

@@ -23,7 +23,7 @@ export default function FormInput() {
   const {userDetail, setUserDetail}=useContext(UserDetailContext);
 
   useEffect(() => {
-    console.log('Current aiModelName: ', params.aiModelName);
+    console.log('Current AI model name: ', params.name);
     setAiModel(params);
     navigation.setOptions({
       headerShown: true,
@@ -38,7 +38,7 @@ export default function FormInput() {
       return;
     }
 
-    console.log('AI model name: ', aiModel?.aiModelName)
+    console.log('AI model name: ', aiModel?.name)
     console.log('User Image Upload: ', aiModel?.userImageUpload)
 
     if(aiModel?.userImageUpload=='false' || aiModel?.userImageUpload == false){
@@ -120,8 +120,10 @@ export default function FormInput() {
       const formData = new FormData();
       formData.append('file', file);
 
+      console.log('url: ', aiModel?.aiModelName);
       const response = await axios.post(
-        'https://www.cutout.pro/api/v1/matting2?mattingType=6',  // Replace with actual API endpoint
+        aiModel?.aiModelName,
+        // 'https://www.cutout.pro/api/v1/matting2?mattingType=6',  // Replace with actual API endpoint
         formData,
         {
           headers: {
@@ -141,22 +143,7 @@ export default function FormInput() {
       console.log('credit update result ', updatedResult.data.data.userEmail, updatedResult.data.data.credits)
       setUserDetail(updatedResult?.data.data);
 
-      // // save generated image url
-
-      const SaveImageData={
-        imageUrl:AIImage,
-        userEmail: userDetail?.userEmail
-      }
-      const SaveImageResult = await GlobalApi.AddAiImageRecord(SaveImageData)
-      console.log(SaveImageResult.data.data.userEmail, 'added a new image record')
-
-      router.push({
-        pathname:'viewAiImage',
-        params:{
-          imageUrl:AIImage,
-          prompt:aiModel?.aiModelName
-        }
-      })
+      UploadImageAndSave(AIImage);
 
       setLoading(false)
     } catch (error) {
@@ -168,6 +155,45 @@ export default function FormInput() {
     //   formData
     // });
 
+  }
+
+  const UploadImageAndSave = async (AIImage) => { 
+
+    const cld = new Cloudinary({
+      cloud: {
+        cloudName: process.env.EXPO_PUBLIC_CLOUDINARY_NAME
+      },
+      url: {
+        secure: true
+      }
+    });
+  
+    const options = {
+      upload_preset: process.env.EXPO_PUBLIC_CLOUDINARY_PRESET,
+      unsigned: true,
+    }
+
+    await upload(cld, {file: AIImage , options: options, callback: async (error, response) => {
+      //.. handle response
+      console.log('ai image uploaded to cloudinary: ', response?.url)
+
+      const SaveImageData={
+        imageUrl:response?.url,
+        userEmail: userDetail?.userEmail
+      }
+      const SaveImageResult = await GlobalApi.AddAiImageRecord(SaveImageData)
+      console.log(SaveImageResult.data.data.userEmail, 'added a new image record')
+
+    }})
+
+
+    router.push({
+      pathname:'viewAiImage',
+      params:{
+        imageUrl:AIImage,
+        prompt:aiModel?.name
+      }
+    })
   }
 
   return (

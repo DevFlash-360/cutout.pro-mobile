@@ -23,7 +23,7 @@ export default function ViewAiImage() {
     console.log('Downloading AI Generated Image..')
     // Permission
     try {
-      console.log(status)
+      console.log('permission: ', status)
       if(!status?.granted) {
         const permissionResp = await requestPermission();
         if (!permissionResp?.granted) {
