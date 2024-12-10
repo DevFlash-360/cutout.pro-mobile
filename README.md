@@ -10,6 +10,9 @@ react native, expo
 ## 3. Login Screen UI
 35:39
 
+## 4. Authentication.
+46:53
+
 ## Save User to Strapi
 1:06:56
 
